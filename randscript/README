@@ -2,4 +2,30 @@ Randscript
 Tao Du
 Jan 21, 2015
 
+This cute program generates pbrt scripts with given shape, given camera position, random lighting and random materials.
 
+Usage:
+randscript [OBJ FILE NAME] [MERL FOLDER] [CAMERA POS] [(OPTIONAL)LOOKAT POS] [(OPTIONAL)UP VECTOR] [(OPTIONAL) PBRT SCRIPT NAME]
+
+Input Arguments:
+OBJ FILE NAME: string. The filename of the .obj file that contains the shape model.
+
+MERL FOLDER: string. Please visit http://www.merl.com/brdf/ for details. This argument is the folder that contains all the MERL .binary files, i.e., MERL FOLDER/alum-bronze.binary, MERL FOLDER/alumina-oxide.binary, etc.
+
+CAMERA POS: three floating point number. This 3D vector represents the camera positions in the world coordinates. The world coordinates is a right-handed coordinates with positive z-axis pointing upward.
+
+LOOKAT POS: three floating point number. This 3D vector represents the point our camera is looking at. If not provided, the default value is (0, 0, 0), i.e., the origin of the world coordinates.
+
+UP VECTOR: three floating point number. This 3D vector represents the "up vector" for the camera. If not provide, the default value is (0, 0, 1).
+
+PBRT SCRIPT NAME: string. This is the filename of the generated script. If not provided, the default value is randscript.pbrt.
+
+Example:
+randscript bunny.obj merl/brdfs 1 1 1
+randscript bunny.obj merl/brdfs 1 1 1 script.pbrt
+randscript bunny.obj merl/brdfs 1 1 1 0 0 0
+randscript bunny.obj merl/brdfs 1 1 1 0 0 0 script.pbrt
+randscript bunny.obj merl/brdfs 1 1 1 0 0 0 0 0 1
+randscript bunny.obj merl/brdfs 1 1 1 0 0 0 0 0 1 script.pbrt
+
+Note that in the 3rd and 4th example (0, 0, 0) represents the LOOKAT POS, i.e., we assume UP VECTOR is ignored in this case.
