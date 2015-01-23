@@ -10,10 +10,10 @@ using namespace std;
 #include "materials.h"
 
 // Distant light definition.
-#define DISTANT_LIGHT_MAX_NUM 4
+#define DISTANT_LIGHT_MAX_NUM 20
 
 // Point light definition.
-#define POINT_LIGHT_MAX_NUM 4
+#define POINT_LIGHT_MAX_NUM 20
 // Max and min dist defines the maximum/minimum distance from a point light
 // source to (0, 0, 0).
 #define POINT_LIGHT_MAX_DIST 1.5
