@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cmath>
 #include <cstdlib>
 #include <ctime>
 using namespace std;
@@ -8,12 +9,15 @@ using namespace std;
 // 100 BRDF names.
 #include "materials.h"
 
+// Distant light definition.
 #define DISTANT_LIGHT_MAX_NUM 4
-// Note that infinite light models environment light(light that comes from all
-// directions), so it makes no sense to have two or more infinite light.
-#define INFINITE_LIGHT_MAX_NUM 1
+
+// Point light definition.
 #define POINT_LIGHT_MAX_NUM 4
-#define SPOT_LIGHT_MAX_NUM 4
+// Max and min dist defines the maximum/minimum distance from a point light
+// source to (0, 0, 0).
+#define POINT_LIGHT_MAX_DIST 1.5
+#define POINT_LIGHT_MIN_DIST 0.5 
 
 struct Vector3D {
   Vector3D() : x(0.0), y(0.0), z(0.0) {}
@@ -103,18 +107,16 @@ int main(int argc, char* argv[]) {
   srand(time(NULL));
 
   // Lighting section.
-  // PBRT provides the following light conditions:
-  // distant: directional light.
-  // infinite: light from all directions, environment light.
-  // point: point light.
-  // spot: spot light.
   pbrtScriptFile << "AttributeBegin" << endl;
+  // We provide the following lightings:
+  // distant: directional light.
+  // point: point light.
   // How many distant lights do we want?
   int distantLightNum = rand() % (DISTANT_LIGHT_MAX_NUM + 1);
-  // Make sure the intensity of all the distant light does not exceed 1.0.
-  double scale = 1.0 / distantLightNum;
+  // In case we want to scale the intensity.
+  double scale = 1.0;
   for (int i = 0; i < distantLightNum; ++i) {
-    pbrtScriptFile << "LightSource \"distant\" \"color I\" ["
+    pbrtScriptFile << "LightSource \"distant\" \"rgb L\" ["
                    << randDouble() * scale << " " << randDouble() * scale << " "
                    << randDouble() * scale << "] "
                    << "\"point from\" [" << randDouble() << " "
@@ -122,6 +124,24 @@ int main(int argc, char* argv[]) {
                    << "\"point to\" [0 0 0]" <<endl;
   }
 
+  // How many point lights do we have?
+  pbrtScriptFile << endl;
+  int pointLightNum = rand() % (POINT_LIGHT_MAX_NUM + 1);
+  scale = 1.0;
+  for (int i = 0; i < pointLightNum; ++i) {
+    // Generate dist first.
+    double dist = POINT_LIGHT_MIN_DIST + randDouble() * (POINT_LIGHT_MAX_NUM
+                  - POINT_LIGHT_MIN_DIST);
+    // Generate spherical coordinates.
+    double theta = randDouble() * M_PI / 2;
+    double phi = randDouble() * 2 * M_PI;
+    pbrtScriptFile << "LightSource \"point\" \"rgb I\" ["
+                   << randDouble() * scale << " " << randDouble() * scale << " "
+                   << randDouble() * scale << "] "
+                   << "\"point from\" [" << dist * sin(theta) * cos(phi) << " "
+                   << dist * sin(theta) * sin(phi) << " "
+                   << dist * cos(theta) << "]" << endl;
+  }
   pbrtScriptFile << "AttributeEnd" << endl;
 
   // Material section.
