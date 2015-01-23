@@ -8,6 +8,13 @@ using namespace std;
 // 100 BRDF names.
 #include "materials.h"
 
+#define DISTANT_LIGHT_MAX_NUM 4
+// Note that infinite light models environment light(light that comes from all
+// directions), so it makes no sense to have two or more infinite light.
+#define INFINITE_LIGHT_MAX_NUM 1
+#define POINT_LIGHT_MAX_NUM 4
+#define SPOT_LIGHT_MAX_NUM 4
+
 struct Vector3D {
   Vector3D() : x(0.0), y(0.0), z(0.0) {}
   Vector3D(double xx, double yy, double zz) : x(xx), y(yy), z(zz) {}
@@ -26,6 +33,11 @@ void printArguments(const string objFileName, const string merlFolder,
   cout << "Up vector: (" << upVec.x << ", " << upVec.y << ", " << upVec.z
        << ")" << endl;
   cout << "PBRT script file name: " << pbrtScriptFileName << endl;
+}
+
+// Generate random number between 0 and 1.
+double randDouble() {
+  return rand() * 1.0 / RAND_MAX;
 }
 
 int main(int argc, char* argv[]) {
@@ -91,6 +103,26 @@ int main(int argc, char* argv[]) {
   srand(time(NULL));
 
   // Lighting section.
+  // PBRT provides the following light conditions:
+  // distant: directional light.
+  // infinite: light from all directions, environment light.
+  // point: point light.
+  // spot: spot light.
+  pbrtScriptFile << "AttributeBegin" << endl;
+  // How many distant lights do we want?
+  int distantLightNum = rand() % (DISTANT_LIGHT_MAX_NUM + 1);
+  // Make sure the intensity of all the distant light does not exceed 1.0.
+  double scale = 1.0 / distantLightNum;
+  for (int i = 0; i < distantLightNum; ++i) {
+    pbrtScriptFile << "LightSource \"distant\" \"color I\" ["
+                   << randDouble() * scale << " " << randDouble() * scale << " "
+                   << randDouble() * scale << "] "
+                   << "\"point from\" [" << randDouble() << " "
+                   << randDouble() << " " << randDouble() << "] "
+                   << "\"point to\" [0 0 0]" <<endl;
+  }
+
+  pbrtScriptFile << "AttributeEnd" << endl;
 
   // Material section.
   pbrtScriptFile << endl;
